@@ -15,14 +15,17 @@ pub fn build(b: *std.Build) !void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
-    // create a module to be used internally.
-    const graphql = b.createModule(.{
-        .root_source_file = b.path("src/main.zig"),
+    const lib = b.addStaticLibrary(.{
+        .name = "graphql",
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = optimize,
     });
 
-    // register the module so it can be referenced
-    // using the package manager.
-    try b.modules.put(b.dupe("graphql"), graphql);
+    // This declares intent for the library to be installed into the standard
+    // location when the user invokes the "install" step (the default step when
+    // running `zig build`).
+    b.installArtifact(lib);
 
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
